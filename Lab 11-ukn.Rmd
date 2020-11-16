@@ -1,0 +1,364 @@
+---
+title: "Lab 11-ukn"
+author: "U Kristine Nguyen"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Task 1
+
+```{r}
+getwd()
+```
+
+# Task 2
+
+```{r}
+d = c(5.0581, 4.9707, 5.0893, 4.9334, 4.9777, 5.0285, 4.8555, 4.9565, 4.99769, 4.9722, 4.999, 4.9925, 4.9686, 5.0662, 4.9239, 4.9781, 5.0485, 5.0014, 4.9957, 5.0195, 5.0118, 4.9928, 5.0361, 5.0185, 4.9879)
+```
+
+## (a) R as a Calculator: $\mu$
+
+### (i) 95%
+
+```{r}
+std <- sd(d) # sample standard deviation
+ta <-qt(1-0.05/2, 25-1) # t multiplier
+mp <- c(-1,1) # -/+
+mean(d)+ mp*ta*std/sqrt(25) # formula
+
+#double check
+t.test(x = d)$conf.int
+```
+
+### (ii) 90%
+
+```{r}
+tb <-qt(1-0.1/2,25-1) # t multiplier
+mean(d) + mp*tb*std/sqrt(25) # formula
+
+#double check
+t.test(x = d, conf.level = 0.9)$conf.int
+```
+
+### (iii) 80%
+
+```{r}
+y = c(3,4,5)
+sty = sd(y)
+tc <- qt(1-0.2/2, 25-1)
+mean(y) + mp*tc*sty/sqrt(3)
+
+#double check
+t.test(x = y, conf.level = 0.8)$conf.int
+```
+
+### (iv) 50%
+
+```{r}
+td <- qt(1-0.5/2, 25-1)
+mean(d) + mp*td*std/sqrt(25)
+
+#double check
+t.test(x = d, conf.level = 0.5)$conf.int
+```
+
+## (b) 80% CI using t.test()
+
+```{r}
+test = t.test(d, conf.level = 0.80)
+test$conf.int
+```
+
+## (c) R as a Calculator: $\sigma^2$
+
+### (i) 95%
+
+```{r}
+chi1a = qchisq(0.05/2, 25-1)
+chi1b = qchisq(1-0.05/2,25-1)
+l1 = ((25-1)*(std^2))/chi1a
+u1 = ((25-1)*(std^2))/chi1b
+
+#upper limit
+u1
+
+#lower limit
+l1
+```
+
+### (ii) 90%
+
+```{r}
+chi2a = qchisq(0.1/2, 24)
+chi2b = qchisq(1-0.1/2,24)
+l2 = (24*(std^2))/chi2a
+u2 = (24*(std^2))/chi2b
+
+#upper limit
+u2
+
+#lower limit
+l2
+```
+
+### (iii) 80%
+
+```{r}
+chi3a = qchisq(0.2/2, 24)
+chi3b = qchisq(1-0.2/2, 24)
+l3 = (24*(std^2))/chi3a
+u3 = (24*(std^2))/chi3b
+
+#upper limit 
+u3
+
+#lower limit
+l3
+```
+
+### (iv) 50%
+
+```{r}
+chi4a = qchisq(0.5/2, 24)
+chi4b = qchisq(1 - 0.5/2, 24)
+l4 = (24*(std^2))/chi4a
+u4 = (24*(std^2))/chi4b
+
+#upper limit
+u4
+
+#lower limit
+l4
+```
+
+# Task 3
+
+```{r}
+#n = 20
+blue = c(32.65, 17.48, 20.1, 21.57, 14.82, 19.17, 21.08, 18.23, 22.93, 15.66, 20.89, 21.66, 18.5, 20.59, 18.63, 18.91, 19.53, 17.7, 16.5, 19.03)
+
+# n = 15
+snap = c(31.65, 27.48, 30.1, 31.57, 24.82, 29.17, 31.08, 28.23, 32.93, 25.66, 30.89, 31.66, 28.5, 30.59, 28.63)
+```
+
+## (a) R as a Calculator: Diff of Means
+
+### (i) $\mu_{blue} - \mu_{snapper}$
+
+```{r}
+#n1 and n2 are both less than 30 so use equation for small samples
+
+sps = (19*(sd(blue)^2)+14*(sd(snap)^2))/33
+tss = qt(1-0.05/2, 33)
+mean(blue) - mean(snap) + mp*tss*sqrt(sps*(1/20 + 1/15))
+```
+
+### (ii) $\mu_{snapper} - \mu_{blue}$
+
+```{r}
+mean(snap) - mean(blue) + mp*tss*sqrt(sps*(1/20 + 1/15))
+```
+
+### (iii) Interpretation
+
+With 95% confidence the difference in mean length in inches for snapper and blue cod is between 7.549795 and 11.948539. In this scenario, the snappers have a higher average length than the blue cod.
+
+## (b) t.test(, var.equal = TRUE)
+
+### (i) 95%
+
+```{r}
+t.test(x = snap, y = blue, var.equal = TRUE)$conf.int
+```
+
+### (ii) 90%
+
+```{r}
+t.test(x = snap, y = blue, var.equal = TRUE, conf.level = 0.9)$conf.int
+```
+
+### (iii) 85%
+
+```{r}
+t.test(x = snap, y = blue, var.equal = TRUE, conf.level = 0.85)$conf.int
+```
+
+### (iv) 75%
+
+```{r}
+t.test(x = snap, y = blue, var.equal = TRUE, conf.level = 0.75)$conf.int
+```
+
+### (v) 25%
+
+```{r}
+t.test(x = snap, y = blue, var.equal = TRUE, conf.level = 0.25)$conf.int
+```
+
+### (vi)
+
+As the confidence level decreases, the confidence interval gets smaller.
+
+# Task 4
+
+```{r}
+#n = 25
+e1 = c(40.98, 59.36, 46.69, 41.8, 61.63, 65.31, 62.96, 60.21, 56.89, 78.41, 53.44, 75.2, 60.54, 52.43, 41.41, 70.79, 73.55, 55.65, 61.43, 63.84, 58.07, 53.79, 54.45, 67.18, 44.46)
+
+e2 = c(50.22, 66.19, 58.75, 51.88, 66.61, 70.86, 74.25, 70.23, 69.55, 87.18, 63.62, 81.7, 70.5, 66.02, 51.35, 80.92, 85.65, 65.44, 74.37, 75.28, 67.86, 59.92, 64.42, 73.57, 57.15)
+```
+
+## (a)
+
+### (i) 95% CI
+
+```{r}
+te = qt(1- 0.05/2, 24)
+se = sd(e1-e2)
+mean(e1-e2) + mp*te*(se/sqrt(25))
+```
+
+### (ii) Interpret
+
+With 95% confidence the difference in mean of test scores from exam 1 to exam 2 is between -10.731329 and -8.710271. Since the confidence intervals are negative, this means that exam 2 had higher scores than exam 1 did.
+
+## (b) t.test()
+
+### (i) 90%
+
+```{r}
+t.test(x = e1, y = e2, paired = TRUE, conf.level = 0.9)$conf.int
+```
+
+### (ii) 80%
+
+```{r}
+t.test(x = e1, y = e2, paired = TRUE, conf.level = 0.8)$conf.int
+```
+
+### (iii) 70%
+
+```{r}
+t.test(x = e1, y = e2, paired = TRUE, conf.level = 0.7)$conf.int
+```
+
+### (iv) 60%
+
+```{r}
+t.test(x = e1, y = e2, paired = TRUE, conf.level = 0.6)$conf.int
+```
+
+### (v) 10%
+
+```{r}
+t.test(x = e1, y = e2, paired = TRUE, conf.level = 0.1)$conf.int
+```
+
+# Task 5
+
+## (a) Data
+
+```{r}
+nzb = read.csv("NZBIRDS.csv")
+
+a = with(nzb, nzb[Extinct == "Yes",])
+a = nrow(a)
+
+c = with(nzb, nzb[Extinct == "No",])
+c = nrow(c)
+
+b = with(nzb, nzb[Extinct == "Yes" & Flight == "No",])
+b = nrow(b)
+
+d = with(nzb, nzb[Extinct == "No" & Flight == "No",])
+d = nrow(d)
+
+e = matrix(c(a, b, c, d), ncol = 2, byrow = TRUE)
+colnames(e) <- c("Number of Species Sampled", "Number of Flightless Species")
+rownames(e) <- c("Extinct", "Nonextinct")
+as.table(e)
+```
+
+## (b) R as a Calculator
+
+```{r}
+pe = 21/38
+qe = 1-pe
+pne = 7/78
+qne = 1-pne
+
+p = (21+7)/(38+78)
+q = 1-p
+
+zp = (pe-pne)/sqrt(p*q*(1/38 + 1/78))
+
+pe - pne + mp*zp*sqrt(((pe*qe)/38)+((pne*qne)/78))
+```
+
+# Task 6
+
+## (a)
+
+```{r}
+set.seed(35)
+sam1 = rnorm(25, mean = 10, sd = 5)
+
+set.seed(45)
+sam2 = rnorm(34, mean = 40, sd = 8)
+
+s1 = sd(sam1)
+s12 = s1^2
+
+s2 = sd(sam2)
+s22 = s2^2
+
+f = qf(0.95, df1 = 24, df2 = 33)
+
+#lower bound
+(s12/s22)/f
+
+#upper bound
+(s12/s22)*f
+```
+
+## (b) Using var.test()
+
+### (i) 80%
+
+```{r}
+var.test(x = sam1, y = sam2, conf.level = 0.8)$conf.int
+```
+
+### (ii) 70%
+
+```{r}
+var.test(x = sam1, y = sam2, conf.level = 0.7)$conf.int
+```
+
+### (iii) 60%
+
+```{r}
+var.test(x = sam1, y = sam2, conf.level = 0.6)$conf.int
+```
+
+### (iv) 50%
+
+```{r}
+var.test(x = sam1, y = sam2, conf.level = 0.5)$conf.int
+```
+
+# Task 7
+
+```{r}
+set.seed(23)
+x = rnorm(30, mean = 10, sd = 12)
+package1::myci(x)
+```
