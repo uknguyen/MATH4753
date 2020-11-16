@@ -1,0 +1,108 @@
+---
+title: "Lab 2-ukn"
+author: "U Kristine Nguyen"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tasks
+
+## Task 1
+
+The working directory
+
+```{r}
+getwd()
+```
+
+## Task 2
+
+Read in EPAGAS data
+
+```{r}
+epa <- read.csv("EPAGAS.csv")
+head(epa)
+```
+
+## Task 3
+
+  a. Verifying z-bar = 0 and (s_z)^2 = 1
+
+```{r}
+mpg <- epa$MPG
+s <- sd(mpg)
+m <- mean(mpg)
+z = (mpg - m) / s
+zbar <- mean(z)
+sz2 = sum(((z-zbar)^2)/99)
+zbar
+sz2
+```
+
+  b. MPG possible outliers
+  
+```{r}
+po <- mpg[abs(z) >= 2 & abs(z) <= 3]
+po
+```
+  
+  c. MPG outliers
+  
+```{r}
+o <- mpg[abs(z) >= 3]
+o
+```
+  
+  d. Dotplot for outliers
+  
+```{r}
+library(lattice)
+ocol = with(epa, ifelse(mpg == po, "Blue",
+                        ifelse(mpg == o, "Red", "Black")))
+d <- data.frame(x = epa$MPG, y = c(1:100))
+dotplot(y~x, data = d, col = ocol, xlab = "Miles per Gallon")
+```
+
+## Task 4
+
+  a. Make a boxplot of mpg variable
+
+```{r}
+boxplot(mpg, horizontal = TRUE, notch = TRUE, col = "black", xlab = "Miles per Gallon", ylab = "Gas Mileage",title = "Mean Gas Mileage in Miles per Gallon")
+```
+
+  b. Using Chebyshev's theorem predict the proportion of data within 2 standard deviations of the mean of the mpg data
+  
+```{r}
+ch = 1 - (1/4)
+ch
+```
+  
+  c. Calculate the exact proportion within 2 standard deviations of the mean
+  
+```{r}
+sum(mpg > (m-(2*s)) & mpg < (m+(2*s))) / length(mpg)
+```
+  
+  d. Does Chebyshev agree with the data?
+  
+    Chebyshev does not agree with the data.
+  
+  e. Using the empirical rule, what proportion of data should be within 2 standard deviations of the mean?
+  
+    Using the emperical rule, 0.95 of the data should be within 2 standard deviations of the mean.
+  
+  f. How well does it correspond?
+  
+    The exact proportion of the data within 2 standard deviations of the mean is 0.01 different from what is stated in the empirical rule.
+  
+  g. Is the empirical rule valid? Why?
+
+    The empirical rule is valid because actual data with a pretty normal distribution fits the empirical rule pretty well. The experimental supports the theoretical.
