@@ -1,0 +1,353 @@
+---
+title: "Lab 4-ukn"
+author: "U Kristine Nguyen"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 1
+
+```{r}
+getwd()
+```
+
+# Task 2
+
+```{r}
+spr.df <- read.csv("SPRUCE.csv")
+tail(spr.df)
+```
+
+# Task 3
+
+##Lowess Smoother Scatter Slot
+
+```{r}
+library(s20x)
+trendscatter(Height~BHDiameter, data = spr.df, f = 0.5)
+```
+  
+##Linear Model Object
+  
+```{r}
+spruce.lm = with(spr.df, lm(Height~BHDiameter))
+```
+
+##Residuals
+
+```{r}
+hght.res = residuals(spruce.lm)
+```
+
+##Fitted Values
+
+```{r}
+hght.fit = fitted(spruce.lm)
+```
+
+##Residuals vs Fitted Values
+
+```{r}
+#Res vs Fit
+plot(y = hght.res, x = hght.fit)
+
+#Res vs Fit w/ Trendscatter
+trendscatter(y = hght.res, x = hght.fit)
+```
+
+  The shape of this trendscatter is more parabolic and symmetrical. The residual range is also wider than it was in the trendscatter from before. This is because the trendscatter plot from before used Height vs BHDiameter data instead of Residual Height vs Fitted Height.
+  
+##Residual Plot
+
+```{r}
+plot(spruce.lm, which = 1)
+```
+
+##Checking Normality
+
+```{r}
+normcheck(spruce.lm, shapiro.wilk = TRUE)
+```
+
+  The p-value for the Shapiro Wilk test was 0.29. The null hypothesis says that the linear model object is distributed normally. Because the p-value > 0.05, we accept the null hypothesis. The model works well so we should expect residuals that are approximately  normal in distribution with mean 0 and constant variance.
+  
+## Evaluating
+
+```{r}
+round(mean(hght.res), 4)
+```
+
+  The mean is 0 for the Residual Height.
+  
+## Conclusion
+
+  Based on the evidence from the plots above, we should not use a linear model. The shape of the scatterplot is quadratic and the original model from Lab 3 should be adjusted.
+
+# Task 4
+
+## Fitting a Quadratic
+
+```{r}
+quad.lm = lm(Height~BHDiameter + I(BHDiameter ^2), data = spr.df)
+summary(quad.lm)
+```
+
+## Scatterplot with a Quadratic
+
+```{r}
+coef(quad.lm)
+plot(spr.df)
+np = function(x) {
+  quad.lm$coef[1] + quad.lm$coef[2] * x + quad.lm$coef[3] * x^2
+}
+curve(np, lwd = 2, add = TRUE, col = "Purple")
+```
+
+## Fitted Quadratic Line
+
+```{r}
+quad.fit = fitted(quad.lm)
+```
+
+## Residuals vs Fitted
+
+```{r}
+plot(quad.lm, which = 1)
+```
+
+## Checking Normality
+
+```{r}
+normcheck(quad.lm, shapiro.wilk = TRUE)
+```
+
+  The p-value in the Shapiro-Wilk test is 0.684 which is also > 0.684 so we accept the null hypothesis ($\hat{\beta_2}=0$. On the Residuals vs Fitted plot, there is not much of a trend. The residual values range from -4 to 4. The quadratic model fits the data better than the linear model.
+
+# Task 5
+
+## Summarize quad.lm
+
+```{r}
+summary(quad.lm)
+```
+
+## $\hat{\beta}$ Values
+
+  The value for $\hat{\beta}_0$ is 0.860896
+  
+  The value for $\hat{\beta}_1$ is 1.469592
+  
+  The value for $\hat{\beta}_2$ is -0.027457
+
+## Interval Estimates for $\hat{\beta_0}$, $\hat{\beta}_1$, $\hat{\beta}_2$
+
+```{r}
+ciReg(quad.lm)
+```
+
+## Equation for a fitted line
+
+$\hat{Height} = \hat{\beta}_2x^2 + \hat{\beta}_1x + \hat{\beta}_0$
+
+$\hat{Height} = -0.027457x^2 + 1.46959x + 0.860896$
+
+## Height Predictions
+
+```{r}
+predict(quad.lm, data.frame(BHDiameter = c(15, 18, 20)))
+```
+
+## Compare with Previous Predictions
+
+```{r}
+predict(spruce.lm, data.frame(BHDiameter = c(15, 18, 20)))
+```
+
+  The predictions for spruce.lm are smaller than the predictions for quad.lm. The predictions for quad.lm follow the trends for quadratic growth.
+  
+## Multiple $R^2$ Values
+
+### quad.lm
+
+```{r}
+summary(quad.lm)$r.squared
+```
+
+### spruce.lm
+
+```{r}
+summary(spruce.lm)$r.squared
+```
+
+  The $R^2$ value for spruce.lm is smaller than the $R^2$ value for quad.lm.
+  
+## Adjusted $R^2$
+
+```{r}
+summary(quad.lm)$adj.r.squared
+summary(spruce.lm)$adj.r.squared
+```
+
+  The adjusted $R^2$ values indicate how well the data fits the data model. The $R^2$ value increases/decreases as the model improves/worsens at the addition of data. According to the difference between the $R^2$ values for quad.lm and spruce.lm, quad.lm is the better fit for the model. In this cause multiple $R^2$ means how well the model describes the data and does not depend on the quantity or quality of the variables.
+  
+## Variability in Height
+
+```{r}
+summary(quad.lm)$r.squared
+summary(quad.lm)$adj.r.squared
+summary(spruce.lm)$r.squared
+summary(spruce.lm)$adj.r.squared
+```
+
+  quad.lm explains the most variability in height. This is because both of its $R^2$ and adj $R^2$ values are > than the $R^2$ and adj $R^2$ values for spruce.lm.
+
+## anova
+
+```{r}
+anova(spruce.lm)
+anova(quad.lm)
+anova(spruce.lm, quad.lm)
+```
+
+  quad.lm models the data better because it has a smaller value for RSS. quad.lm fits the data better than spruce.lm.
+  
+## TSS, MSS, RSS
+
+```{r}
+hght.qfit = fitted(quad.lm)
+```
+
+### Total Sum of Squares
+
+```{r}
+TSS = with(spr.df, sum(Height - mean(Height))^2)
+TSS
+```
+
+### Model Sum of Squares
+
+```{r}
+MSS = with(spr.df, sum((hght.qfit - mean(Height))^2))
+MSS
+```
+
+### Residual Sum of Squares
+
+```{r}
+RSS = with(spr.df, sum((Height - hght.qfit)^2))
+RSS
+```
+
+## MSS/TSS
+
+```{r}
+MSS/TSS
+```
+
+# Task 6
+
+## Unusual Points
+
+```{r}
+cooks20x(quad.lm, main = "Cook's Plot (quad.lm)")
+```
+
+## Cook's Distance
+
+  Cook's distance is a way to measure how a data point changes the regression analysis if it were deleted. The distance is based on how influential the data point is in fitted response values. Cook's distance can be used to see if there are any outliers. It can show which data point to take out if the researcher wanted to create a new model without the big influence.
+  
+  Specifically for quad.lm, Cook's distance is showing that the 24th data point is the most influential data point. It is evident because the 24th data point has the tallest peak.
+  
+## quad2.lm
+
+```{r}
+quad2.lm = lm(Height~BHDiameter + I(BHDiameter ^ 2), data = spr.df[-24,])
+```
+
+## Summary
+
+```{r}
+summary(quad2.lm)
+```
+
+## Compare with quad.lm
+
+```{r}
+summary(quad.lm)
+```
+
+  The median, minimum, and maximum residuals for quad2.lm are smaller than the values for quad.lm. However, the multiple $R^2$ values and adjusted $R^2$ values for quad2.lm are larger than the multiple $R^2$ and adjusted $R^2$ values for quad.lm.
+
+## Conclusion
+
+  Cook's distance plot was accurate when it said that the 24th data point was influential to the model. When the data point was removed, the $R^2$ value increased.
+
+# Task 7
+
+## Proof
+  
+  Prove that $y = \beta_0 + \beta_1x + \beta_2(x-x_k)I(x>x_k)$ where I() = 1 when $x>x_k$ and 0 else.
+  
+  The equation for two lines including $x_k$
+  
+  $l_1 : y = \beta_0 + \beta_1x$
+    
+  $l_2 : y = \beta_0 + \delta + (\beta_1 + \beta_2)x$
+  
+  Setting the equations equal to each other
+   
+  $y = \beta_0 + \beta_1x = \beta_0 + \delta + (\beta_1 + \beta_2)x$
+    
+  Plugging in $x_k$ and distributing where necessary
+  
+  $y = \beta_0 + \beta_1x_k = \beta_0 + \delta + \beta_1x_k + \beta_2x_k$
+
+  Simplify
+  
+  $0 = \delta + \beta_2x_k$
+  
+  Solve for $\delta$ and plug $\delta$ back into $l_2$
+  
+  $\delta = -\beta_2x_k$
+  
+  $l_2 : y = \beta_0 - \beta_2x_k + \beta_1x + \beta_2x$
+  
+  Simplify
+  
+  $y = \beta_0 + \beta_1x_k + \beta_2(x-x_k)$
+  
+  If I() = 1 when $x>x_k$ and I() = 0 in all other instances, then we get $l_1$ when $x_k>x$ and $l_2$ when $x>x_k$
+  
+## Reproducing the plot
+
+```{r}
+library(ggplot2)
+xk = 18
+dff <- spr.df
+df <- within(dff, X <- (BHDiameter - xk)*(BHDiameter>xk))
+head(df)
+
+ylm <- lm(Height ~ BHDiameter + X, data = df)
+summary(ylm)
+gg <- ggplot(df, aes(x = BHDiameter, y = Height), xlim = c(4, 31), ylim = c(7, 23)) + geom_point() + geom_smooth(method = "lm", formula = 'y ~ x + I((x-xk)*(x>xk))', se = F, data = df)
+gg
+```
+
+# Task 8
+
+## Making a package
+
+```{r}
+vltg.df <- read.csv("VOLTAGE.csv")
+vltg.o.df = vltg.df[vltg.df$LOCATION == "OLD",]
+library(package1)
+rf.hist(vltg.o.df$VOLTAGE, main = "Relative Frequency of Voltages at the Old Location")
+```
+
