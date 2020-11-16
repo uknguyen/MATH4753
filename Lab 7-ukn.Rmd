@@ -1,0 +1,374 @@
+---
+title: "Lab 7-ukn"
+author: "U Kristine Nguyen"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 1
+
+```{r}
+getwd()
+```
+
+# Task 2
+
+## (a) mychisim Function
+
+```{r}
+mychisim<-function(n1=10,sigma1=3,mean1=5,iter=1000,ymax=0.1,...){
+  
+  #generates vector with normally distributed random variables that fit those parameters
+  y1=rnorm(n1*iter,mean=mean1,sd=sigma1)# generate iter samples of size n1
+
+  #creates data matrix using vector created above
+  data1.mat=matrix(y1,nrow=n1,ncol=iter,byrow=TRUE)
+
+  #applies function to margins of matrix
+  ssq1=apply(data1.mat,2,var)
+
+  #chi-square statistic
+  w=(n1-1)*ssq1/sigma1^2
+
+  hist(w,freq=FALSE, ylim=c(0,ymax), main=substitute(paste("Sample size = ",n[1]," = ",n1," statistic = ",chi^2)), xlab=expression(paste(chi^2, "Statistic",sep=" ")), las=1)
+
+  #line of best fit for the histogram
+  lines(density(w),col="Blue",lwd=3)
+
+  #theoretical normal curve
+  curve(dchisq(x,n1-1),add=TRUE,col="Red",lty=2,lwd=3)
+  title=expression(chi^2==frac((n[1]-1)*s^2,sigma^2))
+
+return(list(w=w,summary=summary(w),sd=sd(w),fun="Chi-sq"))
+}
+
+chisq = mychisim(iter=10000,ymax=0.15)
+```
+
+## (b) $n_1 = 10, iter = 1000, \mu_1 = 10, \sigma_1=4$
+
+```{r}
+mychisim(n1 = 10, iter = 1000, mean1 = 10, sigma1 = 4, ymax = 0.1)
+```
+
+## (c) $n_1 = 20, iter = 1000, \mu_1 = 10, \sigma_1=4$
+
+```{r}
+mychisim(n1 = 20, iter = 1000, mean1 = 10, sigma1 = 4)
+```
+
+## (d) $n_1 = 100, iter = 1000, \mu_1 = 10, \sigma_1=4$
+
+```{r}
+mychisim(n1 = 100, iter = 1000, mean1 = 10, sigma1 = 4)
+```
+
+## (e) $n_1 = 200, iter = 1000, \mu_1 = 10, \sigma_1=4$
+
+```{r}
+mychisim(n1 = 200, iter = 1000, mean1 = 10, sigma1 = 4)
+```
+
+## (f) $n_1 = 10, iter = 1500, \mu_1 = 20, \sigma_1=10$
+
+```{r}
+#the histogram included is of chisq$w
+chisq1 = mychisim(n1 = 10, iter = 1500, mean1 = 20, sigma1 = 10, ymax = 0.11)
+```
+
+# Task 3
+
+## (a) myTsim()
+
+```{r}
+myTsim <- function(n1=10,sigma1=3,mean1=5,iter=1000,ymax=0.1,...){
+  
+  y1=rnorm(n1*iter,mean=mean1,sd=sigma1)
+
+  data1.mat=matrix(y1,nrow=n1,ncol=iter,byrow=TRUE)
+
+  sd1=apply(data1.mat,2,sd)
+  ybar=apply(data1.mat,2,mean)
+
+  w=(ybar-mean1)/(sd1/sqrt(n1))
+
+  hist(w,freq=FALSE, ylim=c(0,ymax), main=substitute(paste("Sample size = ",n[1]," = ",n1," statistic = ",T," iterations= ",iter)), xlab=expression(paste(T, "Statistic",sep=" ")), las=1)
+
+  lines(density(w),col="Blue",lwd=3)
+
+  curve(dt(x,n1-1),add=TRUE,col="Red",lty=2,lwd=3)
+
+  title=expression(T==frac((bar(y)-mu),s/sqrt(n1)))
+
+  return(list(w=w,summary=summary(w),sd=sd(w),fun="T"))
+}
+```
+
+## (b) $n_1 = 10, iter = 1000, \mu_1 = 10, \sigma_1 = 4$
+
+```{r}
+myTsim(n1 = 10, sigma1 = 4, mean1 = 10, iter = 1000, ymax = 0.45)
+```
+
+## (c) $n_1 = 20, iter = 1000, \mu_1 = 10, \sigma_1 = 4$
+
+```{r}
+myTsim(n1 = 20, sigma1 = 4, mean1 = 10, iter = 1000, ymax = 0.45)
+```
+
+## (d) $n_1 = 100, iter = 1000, \mu_1 = 10, \sigma_1 = 4$
+
+```{r}
+myTsim(n1 = 100, sigma1 = 4, mean1 = 10, iter = 1000, ymax = 0.45)
+```
+
+## (e) $n_1 = 200, iter = 1000, \mu_1 = 10, \sigma_1 = 4$
+
+```{r}
+myTsim(n1 = 200, sigma1 = 4, mean1 = 10, iter = 1000, ymax= 0.45)
+```
+
+## (f) $n_1 = 10, iter = 1500, \mu_1 = 20, sigma_1 = 10)$
+
+```{r}
+myTsim(n1 = 10, iter = 1500, mean1 = 20, sigma1 = 10, ymax = 0.45)
+```
+
+# Task 4
+
+```{r}
+mychisim2<-function(n1=10,n2=14,sigma1=3,sigma2=3,mean1=5,mean2=10,iter=1000,ymax=0.07,...){ 
+  
+  #two different vectors using the data
+  y1=rnorm(n1*iter,mean=mean1,sd=sigma1)
+  y2=rnorm(n2*iter,mean=mean2,sd=sigma2)
+
+  #making two matrices using the vectors
+  data1.mat=matrix(y1,nrow=n1,ncol=iter,byrow=TRUE)
+  data2.mat=matrix(y2,nrow=n2,ncol=iter,byrow=TRUE)
+
+  #applies function to margin of matrices
+  ssq1=apply(data1.mat,2,var)
+  ssq2=apply(data2.mat,2,var)
+  spsq=((n1-1)*ssq1 + (n2-1)*ssq2)/(n1+n2-2)
+  w=(n1+n2-2)*spsq/(sigma1^2)
+
+  #histogram
+  hist(w,freq=FALSE, ylim=c(0,ymax), main=substitute(paste("Sample size = ",n[1]+n[2]," = ",n1+n2," statistic = ",chi^2)), xlab=expression(paste(chi^2, "Statistic",sep=" ")), las=1)
+  
+  #line following rough shape of histogram
+  lines(density(w),col="Blue",lwd=3)
+  
+  #line showing how data so theoretically look
+  curve(dchisq(x,n1+n2-2),add=TRUE,col="Red",lty=2,lwd=3)
+  title=expression(chi^2==frac((n[1]+n[2]-2)*S[p]^2,sigma^2))
+
+  return(list(w=w,summary=summary(w),sd=sd(w),fun="Chi-sq")) # some output to use if needed
+}
+
+```
+
+## (a) $n_1-10, n_2=10, \mu_1=5, \mu_2=10, \sigma_1=\sigma_2=4, iter = 1000$
+
+```{r}
+mychisim2(n1 = 10, n2 = 10, mean1 = 5, mean2 = 10, sigma1 = 4, sigma2 = 4, iter = 1000)
+```
+
+## (b) $n_1-20, n_2=10, \mu_1=3, \mu_2=5, \sigma_1=\sigma_2=10, iter = 1000$
+
+```{r}
+mychisim2(n1 = 20, n2 = 10, mean1 = 3, mean2 = 5, sigma1 = 10, sigma2 = 10, iter = 1000)
+```
+
+## (c) $n_1-50, n_2=50, \mu_1=5, \mu_2=10, \sigma_1=\sigma_2=4, iter = 10000$
+
+```{r}
+mychisim2(n1 = 50, n2 = 50, mean1 = 5, mean2 = 10, sigma1 = 4, sigma2 = 4, iter = 10000)
+```
+
+## (d) $n_1=80, n_2=50, \mu_1=3, \mu_2=5, \sigma_1=\sigma_2=10, iter = 10000$
+
+```{r}
+mychisim2(n1 = 80, n2 = 50, mean1 = 3, mean2 = 5, sigma1 = 10, sigma2 = 10, iter = 10000)
+```
+
+## (e) iter = 10000 with default values for the rest
+
+```{r}
+mychisim2(iter = 10000)
+```
+
+# Task 5
+
+## (a) Add Locator
+
+```{r}
+myTsim2 <- function(n1=10,n2=14,sigma1=3,sigma2=3,mean1=5,mean2=10,iter=1000,ymax=0.5,...){
+
+  y1=rnorm(n1*iter,mean=mean1,sd=sigma1)
+  y2=rnorm(n2*iter,mean=mean2,sd=sigma2)
+
+  data1.mat=matrix(y1,nrow=n1,ncol=iter,byrow=TRUE)
+  data2.mat=matrix(y2,nrow=n2,ncol=iter,byrow=TRUE)
+
+  ssq1=apply(data1.mat,2,var)
+  ybar1= apply(data1.mat,2,mean)
+  ssq2=apply(data2.mat,2,var)
+  ybar2=apply(data2.mat,2,mean)
+  spsq=((n1-1)*ssq1 + (n2-1)*ssq2)/(n1+n2-2)
+  w=((ybar1-ybar2)-(mean1-mean2))/sqrt(spsq*(1/n1+1/n2))
+
+  hist(w,freq=FALSE, ylim=c(0,ymax), main=substitute(paste("Sample size = ",n[1]+n[2]," = ",n1+n2," statistic = ",T)), xlab=paste(" T Statistic",sep=""), las=1)
+
+  lines(density(w),col="Blue",lwd=3)
+
+  curve(dt(x,n1+n2-2),add=TRUE,col="Red",lty=2,lwd=3)
+
+  title=expression(T==frac((bar(Y)[1]-bar(Y)[2])-(mu[1]-mu[2]),S[p]*sqrt(frac(1,n[1])+frac(1,n[2]))))
+
+  legend(2,0.2,c("Simulated","Theoretical"),col=c("Blue","Red"),lwd=4,lty=1:2,bty="n",title=title)
+
+  # Legend # cannot be used in rmd legend(locator(1), c("Simulated","Theoretical"), col=c("Blue","Red"), lwd=4, lty=1:2, bty="n", title=title)
+
+  return(list(w=w,summary=summary(w),sdw=sd(w),fun="T")) # some output to use if needed
+}
+
+```
+
+## (b) MS pg 278
+
+$$T= \frac{(\overline Y_1 - \overline Y_2)-(\mu_1-\mu_2)}{S_p\sqrt{\frac{1}{n_1}+\frac{1}{n_2}}}$$
+
+The T statistic calculates the same thing that the t statistic calculates but with two populations with the same standard deviation meaning that $$\sigma_1^2=\sigma_2^2=\sigma^2$$.
+
+The student calculates this statistic with $$v=(n_1+n_2-2)$$ degrees freedom.
+
+## (c)
+
+This is the part that calculates the statistic
+
+    ssq1=apply(data1.mat,2,var)
+    ybar1= apply(data1.mat,2,mean)
+    ssq2=apply(data2.mat,2,var)
+    ybar2=apply(data2.mat,2,mean)
+    spsq=((n1-1)*ssq1 + (n2-1)*ssq2)/(n1+n2-2)
+    w=((ybar1-ybar2)-(mean1-mean2))/sqrt(spsq*(1/n1+1/n2))
+
+## (d) Using myTsim2
+
+### (i) $n_1=10, n_2=10, \mu_1=5, \mu_2=10,\sigma_1=\sigma_2=4, iter=1000$
+
+```{r}
+myTsim2(n1 = 10, n2 = 10, mean1 = 5, mean2 = 10, sigma1 = 4, sigma2 = 4, iter = 1000)
+```
+
+### (ii) $n_1=20, n_2=10, \mu_1=3, \mu_2=5,\sigma_1=\sigma_2=10, iter=1000$
+
+```{r}
+myTsim2(n1 = 20, n2 = 10, mean1 = 3, mean2 = 5, sigma1 = 4, sigma2 = 4, iter = 1000)
+```
+
+### (iii) $n_1=50, n_2=50, \mu_1=5, \mu_2=10,\sigma_1=\sigma_2=4, iter=10000$
+
+```{r}
+myTsim2(n1 = 50, n2 = 50, mean1 = 5, mean2 = 10, sigma1 = 4, sigma2 = 4, iter = 10000)
+```
+
+### (iv) $n_1=80, n_2=50, \mu_1=3, \mu_2=5,\sigma_1=\sigma_2=4, iter=10000$
+
+```{r}
+myTsim2(n1 = 80, n2 = 50, mean1 = 3, mean2 = 5, sigma1 = 4, sigma2 = 4, iter = 10000)
+```
+
+### (v) iter = 10000 with default values
+
+```{r}
+myTsim2(iter = 10000)
+```
+
+# Task 6
+
+## (a) myFsim2()
+
+```{r}
+myFsim2<-function(n1=10,n2=14,sigma1=3,sigma2=2,mean1=5,mean2=10,iter=1000,ymax=0.9,...){
+
+  y1=rnorm(n1*iter,mean=mean1,sd=sigma1)
+  y2=rnorm(n2*iter,mean=mean2,sd=sigma2)
+
+  data1.mat=matrix(y1,nrow=n1,ncol=iter,byrow=TRUE)
+  data2.mat=matrix(y2,nrow=n2,ncol=iter,byrow=TRUE)
+
+  ssq1=apply(data1.mat,2,var)
+  ssq2=apply(data2.mat,2,var)
+
+
+  w=ssq1*sigma2^2/(ssq2*sigma1^2) #
+
+  hist(w,freq=FALSE, ylim=c(0,ymax), main=substitute(paste("Sample size = ",n[1]+n[2]," = ",n1+n2," statistic = ",F)), xlab=paste("F Statistic",sep=""), las=1)
+
+  lines(density(w),col="Blue",lwd=3)
+
+  curve(df(x,n1-1,n2-1),xlim=c(0,6),add=TRUE,col="Red",lty=2,lwd=3)
+
+  title=expression(F==frac(s[1]^2,s[2]^2)*frac(sigma[2]^2,sigma[1]^2))
+
+  legend(6,0.5,c("Simulated","Theoretical"),col=c("Blue","Red"),lwd=4,lty=1:2,bty="n",title=title)
+
+  return(list(w=w,summary=summary(w),sd=sd(w),fun="F")) # some output to use if needed
+}
+```
+
+## (b) Statistic
+
+$$F = \left(\frac{S_1^2}{S_2^2}\right)\left(\frac{\sigma_2^2}{\sigma_1^2}\right)$$
+
+## (c) What assumptions are made?
+
+According to the book, there are no additional assumptions made.
+
+## (d) 4 plots with different parameters
+
+### (i)
+```{r}
+myFsim2(n1 = 10, n2 = 10, mean1 = 5, mean2 = 10, sigma1 = 3, sigma2 = 3, iter = 1000)
+```
+
+### (ii)
+
+```{r}
+myFsim2(n1 = 20, n2 = 10, mean1 = 10, mean2 = 10, sigma1 = 3, sigma2 = 3, iter = 1000)
+```
+
+### (iii)
+
+```{r}
+myFsim2(n1 = 10, n2 = 10, mean1 = 10, mean2 = 5, sigma1 = 5, sigma2 = 3, iter = 10000)
+```
+
+### (iv)
+
+```{r}
+myFsim2(n1 = 10, n2 = 10, mean1 = 10, mean2 = 10, sigma1 = 5, sigma2 = 5, iter = 10000)
+```
+
+## (e) Default Histogram
+
+```{r}
+myFsim2()
+```
+
+# Task 7
+
+```{r}
+library(package1)
+data("fire")
+knitr::kable(head(fire))
+```
