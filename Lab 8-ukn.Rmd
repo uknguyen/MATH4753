@@ -1,0 +1,326 @@
+---
+title: "Lab 8-ukn"
+author: "U Kristine Nguyen"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tasks
+
+## Task 1
+
+```{r}
+getwd()
+```
+
+## Task 2
+
+### (a) Create the sample
+
+```{r}
+so = runif(10, 0, 5)
+so
+```
+
+### (b) Mean and variance of uniform
+
+#### (i) Population mean
+
+$\mu = \frac{a+b}{2} = \frac{0+5}{2} = \frac{5}{2}$
+
+```{r}
+mu = 5/2
+mu
+```
+
+#### (ii) Population variance
+
+$\sigma^2 = \frac{(b-a)^2}{12} = \frac{(5-0)^2}{12} = \frac{25}{12}$
+
+```{r}
+sigma = 25/12
+sigma
+```
+
+### (c) Compare sample parameters to population parameters
+
+#### (i) Sample mean
+
+```{r}
+mso = mean(so)
+mso
+```
+
+The sample mean varies each time the code is run, but it remains approximately similar to the population mean.
+
+#### (ii) Sample variance
+
+```{r}
+vso = var(so)
+vso
+```
+
+Like the sample mean, the sample variance varies each time the code is run but is not as similar to the population variance as the sample mean and population mean are to each other.
+
+### (d) Mean and variance of:
+
+#### (i) The sum _T_
+
+#### (ii) The mean $\overline Y$
+
+### (e) Function myclt()
+
+```{r}
+myclt = function(n, iter){
+  y = runif(n*iter, 0, 5) #A
+  data = matrix(y, nr = n, nc = iter, byrow = TRUE) #B
+  sm = apply(data, 2, sum) #C
+  hist(sm)
+  sm
+}
+w = myclt(10, 10000) #D
+```
+
+#### (i) Explain line A
+
+Line A is creating a normal distribution sample that has the size of $(n*iter)$, a lower bound of 0, and an upper bound of 5. This sample is stored in the vector _y_.
+
+#### (ii) Explain line B
+
+Line B creates the matrix using the data inputted to the function. The rows are the values inputted as _n_ and the columns are the values inputted as _iter_. The matrix is stored in the vector _data_.
+
+#### (iii) Explain line C
+
+Line C uses a vector and returns it by applying a function to the margins of the matrix. For this specific function, it is using the vector "data" to return the sum in columns.
+
+#### (iv) Explain line D
+
+Line D uses the function and stores it in vector w. This allows the function to run without outputting the screeds.
+
+### (f) Finding sample estimates for the sample from part e
+
+### (g) Changing myclt() to produce histogram with sample means
+
+####(i)
+
+####(ii) Executing Line D
+
+## Task 3
+
+### (a) The function
+
+```{r}
+mycltu=function(n,iter,a=0,b=10){
+  
+  ## r-random sample from the uniform
+  y = runif(n*iter, a, b)
+
+  ## Place these numbers into a matrix
+  ## The columns will correspond to the iteration and the rows will equal the sample size n
+  data = matrix(y, nr = n, nc = iter, byrow = TRUE)
+
+  ## apply the function mean to the columns (2) of the matrix
+  ## these are placed in a vector w
+  w = apply(data, 2, mean)
+
+  ## We will make a histogram of the values in w
+  ## How high should we make y axis?
+  ## All the values used to make a histogram are placed in param (nothing is plotted yet)
+  param = hist(w, plot = FALSE)
+  ## Since the histogram will be a density plot we will find the max density
+
+  ymax=max(param$density)
+
+  ## To be on the safe side we will add 10% more to this
+  ymax=1.1*ymax
+
+  ## Now we can make the histogram
+  hist(w,freq = FALSE,  ylim = c(0,ymax), main = paste("Histogram of sample mean","\n", "sample size= ",n,sep =" "),xlab="Sample mean")
+
+  ## add a density curve made from the sample distribution
+  lines(density(w),col="Blue",lwd=3) # add a density plot
+
+  ## Add a theoretical normal curve 
+  curve(dnorm(x,mean=(a+b)/2,sd=(b-a)/(sqrt(12*n))),add=TRUE,col="Red",lty=2,lwd=3) # add a theoretical curve
+
+  ## Add the density from which the samples were taken
+  curve(dunif(x,a,b),add=TRUE,lwd=4)
+
+}
+```
+
+#### (i) How does the apply function use the 2?
+
+The apply function uses the 2 to indicate that the function should be applied over columns from the data being used. If the apply function had a 1, it would indicate rows instead.
+
+#### (ii) How many terms are in _w_ when mycltu(n = 20, iter = 100000) is called?
+
+There will be iter = 100000 terms in _w_ when mycltu(n = 20, iter = 100000) is called. _w_ will take the 100000 columns in the _data_ matrix and average the 20 terms in each column to produce 100000 terms. This is because the _apply_ function is applying the _mean_ function to the columns in the matrix.
+
+#### (iii) Explain why _sd_ takes the formula as shown in the function.
+
+The reason why $sd = \frac{(b-a)}{\sqrt{12*n}}$ is because the formula is being used to create a theoretical normal curve. Theoretically, the sample variance should be the same, or at the very least very similar, to the population variance. This is why the formula being used is the same as the formula for the population variance.
+
+### (b) Plots
+
+#### (i) $n=1,\;iter=10000,\;a=0,\;b=10$
+
+```{r}
+mycltu(1, 10000)
+```
+
+#### (ii) $n=2,\;iter=10000,\;a=0,\;b=10$
+
+```{r}
+mycltu(2, 10000)
+```
+
+#### (iii) $n=3,\;iter=10000,\;a=0,\;b=10$
+
+```{r}
+mycltu(3, 10000)
+```
+
+#### (iv) $n=5,\;iter=10000,\;a=0,\;b=10$
+
+```{r}
+mycltu(5,10000)
+```
+
+#### (v) $n=10,\;iter=10000,\;a=0,\;b=10$
+
+```{r}
+mycltu(10, 10000)
+```
+
+#### (vi) $n=3,\;iter=10000,\;a=0,\;b=10$
+
+```{r}
+mycltu(30, 10000)
+```
+
+###(c) Conclusion
+
+As the sample size increases, the steeper the curve becomes for the plots. The plots also appear to fit the theoretical normal curve better with a larger sample size.
+
+## Task 4
+
+### (a) The function
+```{r}
+mycltb = function(n, iter, p=0.5,...){
+
+y = rbinom(n*iter, size = n, prob = p)
+
+data = matrix(y, nr = n, nc = iter, byrow = TRUE)
+
+w = apply(data, 2, mean)
+
+param = hist(w, plot = FALSE)
+
+ymax = max(param$density)
+
+ymax = 1.1*ymax
+
+hist(w, freq = FALSE,  ylim = c(0, ymax), main = paste("Histogram of sample mean", "\n",  "sample size= ", n, sep=""), xlab = "Sample mean",...)
+
+curve(dnorm(x, mean = n*p, sd = sqrt(p*(1-p))), add = TRUE, col = "Red", lty = 2, lwd = 3)
+}
+```
+
+### (b) Graphs with probability 0.3
+
+#### (i) $n=4,\;iter=10000$
+
+```{r}
+mycltb(4, 10000, 0.3)
+```
+
+#### (ii) $n=5,\;iter=10000$
+
+```{r}
+mycltb(5, 10000, 0.3)
+```
+
+#### (iii) $n=10,\;iter=10000$
+
+```{r}
+mycltb(10, 10000, 0.3)
+```
+
+#### (iv) $n=20,\;iter=10000$
+
+```{r}
+mycltb(20, 10000, 0.3)
+```
+
+### (c) Graphs with probability 0.7
+
+#### (i) $n=4,\;iter=10000$
+
+```{r}
+mycltb(4, 10000, 0.7)
+```
+
+#### (ii) $n=5,\;iter=10000$
+
+```{r}
+mycltb(5, 10000, 0.7)
+```
+
+#### (iii) $n=10,\;iter=10000$
+
+```{r}
+mycltb(10, 10000, 0.7)
+```
+
+#### (iv) $n=20,\;iter=10000$
+
+```{r}
+mycltb(20, 10000, 0.7)
+```
+
+### (d) Graphs with probability 0.5
+
+#### (i) $n=4,\;iter=10000$
+
+```{r}
+mycltb(4, 10000, 0.5)
+```
+
+#### (ii) $n=5,\;iter=10000$
+
+```{r}
+mycltb(5, 10000, 0.5)
+```
+
+#### (iii) $n=10,\;iter=10000$
+
+```{r}
+mycltb(10, 10000, 0.5)
+```
+
+#### (iv) $n=20,\;iter=10000$
+
+```{r}
+mycltb(20, 10000, 0.5)
+```
+
+### (e) Conclusion
+
+The graphs appear to fit the theoretical normal curve better when the probability is higher and the sample size is larger.
+
+## Task 5
+
+## Task 6
+
+```{r}
+library(package1)
+myclt(5, 10000)
+```
